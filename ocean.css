@@ -1,0 +1,156 @@
+#ocean-canvas { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; opacity: 0.5; pointer-events: none; }
+
+.wave-layer { position: fixed; left: 0; width: 200%; pointer-events: none; z-index: 1; }
+.wave-back { bottom: -10px; height: 140px; background-image: radial-gradient(ellipse 260px 90px at 50% 100%, rgba(var(--teal-rgb),0.16), transparent 70%); animation: drift 24s linear infinite; opacity: 0.7; }
+.wave-front { bottom: -30px; height: 180px; background-image: radial-gradient(ellipse 320px 120px at 50% 100%, rgba(var(--ocean-blue-rgb),0.5), transparent 70%); animation: drift 15s linear infinite reverse; }
+.wave-accent { bottom: -50px; height: 220px; background-image: radial-gradient(ellipse 380px 140px at 50% 100%, rgba(var(--cyan-rgb),0.10), transparent 72%); animation: drift 34s linear infinite; opacity: 0.55; }
+.fixed-wave { position: fixed; }
+@keyframes drift { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+/* Slow aurora-style color sweep across the whole background — subtle, theme-tinted */
+.aurora-sweep {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: 0.5; mix-blend-mode: screen;
+  background: linear-gradient(120deg,
+    rgba(var(--teal-rgb),0.07) 0%, transparent 30%,
+    rgba(var(--cyan-rgb),0.06) 50%, transparent 70%,
+    rgba(var(--seafoam-rgb),0.05) 100%);
+  background-size: 300% 300%;
+  animation: auroraMove 18s ease-in-out infinite;
+}
+@keyframes auroraMove { 0%,100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+
+/* Moving grid overlay — subtle command-center feel */
+.grid-overlay {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: 0.35;
+  background-image:
+    linear-gradient(rgba(var(--teal-rgb),0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(var(--teal-rgb),0.06) 1px, transparent 1px);
+  background-size: 42px 42px;
+  animation: gridPan 30s linear infinite;
+}
+@keyframes gridPan { from { background-position: 0 0, 0 0; } to { background-position: 42px 42px, 42px 42px; } }
+
+/* Radar sweep, used behind the GPS/fleet map header and as a map overlay */
+.radar-sweep { position: relative; width: 46px; height: 46px; border-radius: 50%; border: 1px solid rgba(var(--teal-rgb),0.4); overflow: hidden; flex-shrink: 0; }
+.radar-sweep::before {
+  content: ""; position: absolute; inset: 0;
+  background: conic-gradient(from 0deg, rgba(var(--teal-rgb),0.55), transparent 35%);
+  animation: radarSpin 2.4s linear infinite;
+}
+.radar-sweep::after { content: ""; position: absolute; inset: 30%; background: var(--cyan); border-radius: 50%; box-shadow: 0 0 8px var(--cyan); }
+@keyframes radarSpin { to { transform: rotate(360deg); } }
+
+.radar-sweep-large { position: absolute; top: 10px; right: 10px; width: 90px; height: 90px; border-radius: 50%; border: 1px solid rgba(var(--teal-rgb),0.3); overflow: hidden; pointer-events: none; z-index: 450; opacity: 0.85; }
+.radar-sweep-large::before { content: ""; position: absolute; inset: 0; background: conic-gradient(from 0deg, rgba(var(--teal-rgb),0.45), transparent 28%); animation: radarSpin 3.2s linear infinite; }
+.radar-sweep-large::after { content: ""; position: absolute; inset: 0; background-image: repeating-radial-gradient(circle, transparent 0, transparent 14px, rgba(var(--teal-rgb),0.25) 15px); }
+
+/* Pulsing markers (used by Leaflet custom divIcon) */
+.pulse-marker { position: relative; width: 14px; height: 14px; }
+.pulse-marker .dot { position: absolute; inset: 3px; background: var(--cyan); border-radius: 50%; box-shadow: 0 0 6px var(--cyan); }
+.pulse-marker .ring { position: absolute; inset: 0; border: 2px solid var(--cyan); border-radius: 50%; animation: pulseRing 1.8s ease-out infinite; }
+.pulse-marker.port .dot, .pulse-marker.port .ring { background: var(--amber); border-color: var(--amber); box-shadow: 0 0 6px var(--amber); }
+.pulse-marker.congested .dot, .pulse-marker.congested .ring { background: var(--coral); border-color: var(--coral); box-shadow: 0 0 6px var(--coral); }
+@keyframes pulseRing { 0% { transform: scale(0.6); opacity: 0.9; } 100% { transform: scale(2.4); opacity: 0; } }
+
+/* Realistic rotated vessel marker: small top-down hull silhouette that
+   points in its actual heading, with a gentle idle bob so the fleet feels
+   "live" rather than a field of static pins. */
+.vessel-marker-wrap { position: relative; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; animation: vesselBob 3s ease-in-out infinite; }
+@keyframes vesselBob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
+.vessel-marker-wrap svg { filter: drop-shadow(0 0 4px rgba(var(--cyan-rgb),0.8)); }
+.vessel-marker-wrap.status-on-voyage svg .hull-fill { fill: var(--seafoam); }
+.vessel-marker-wrap.status-available svg .hull-fill { fill: var(--cyan); }
+.vessel-marker-wrap.status-idle svg .hull-fill { fill: var(--amber); }
+.vessel-marker-wrap.status-under-repair svg .hull-fill { fill: var(--coral); }
+
+.vessel-icon { font-size: 18px; filter: drop-shadow(0 0 4px rgba(var(--teal-rgb),0.7)); }
+
+/* KPI shimmer */
+.wave-bg::after { content: ""; position: absolute; bottom: 0; left: 0; right: 0; height: 36px; background: linear-gradient(90deg, transparent, rgba(var(--teal-rgb),0.14), transparent); animation: shimmer 3.5s linear infinite; pointer-events: none; }
+@keyframes shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+
+/* KPI count-up handled via JS but a small glow pulse complements it */
+.kpi-value.counting { animation: glowPulse 0.9s ease-out; }
+@keyframes glowPulse { 0% { text-shadow: 0 0 0 rgba(var(--teal-rgb),0); } 40% { text-shadow: 0 0 14px rgba(var(--teal-rgb),0.8); } 100% { text-shadow: 0 0 0 rgba(var(--teal-rgb),0); } }
+
+/* Bubble field */
+.bubble-field { position: fixed; inset: 0; overflow: hidden; pointer-events: none; z-index: 0; }
+.bubble { position: absolute; bottom: -20px; border-radius: 50%; background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.45), rgba(var(--seafoam-rgb),0.05)); border: 1px solid rgba(var(--seafoam-rgb),0.22); animation: rise linear infinite; }
+@keyframes rise { 0% { transform: translateY(0) translateX(0); opacity: 0; } 10% { opacity: 0.55; } 100% { transform: translateY(-110vh) translateX(20px); opacity: 0; } }
+
+/* Loading / unloading cargo-flow animation (used on vessel optimizer results) */
+.cargo-flow { display: flex; align-items: center; gap: 4px; height: 18px; overflow: hidden; }
+.cargo-flow span { width: 6px; height: 6px; background: var(--cyan); border-radius: 1px; animation: cargoMove 1.2s linear infinite; }
+.cargo-flow span:nth-child(2) { animation-delay: 0.15s; } .cargo-flow span:nth-child(3) { animation-delay: 0.3s; }
+.cargo-flow span:nth-child(4) { animation-delay: 0.45s; } .cargo-flow span:nth-child(5) { animation-delay: 0.6s; }
+@keyframes cargoMove { 0% { transform: translateX(-10px); opacity: 0; } 50% { opacity: 1; } 100% { transform: translateX(40px); opacity: 0; } }
+
+/* Smooth page fade-in */
+.main-content { animation: pageFade 0.35s ease-out; }
+@keyframes pageFade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ---------- Digital Twin HUD framing ---------- */
+.twin-hull-wrap {
+  position: relative; background: rgba(0,0,0,0.15); border-radius: 12px; padding: 16px; margin: 14px 0;
+  background-image:
+    linear-gradient(rgba(var(--teal-rgb),0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(var(--teal-rgb),0.08) 1px, transparent 1px);
+  background-size: 20px 20px;
+  border: 1px solid rgba(var(--teal-rgb),0.25);
+  overflow: hidden;
+}
+.twin-hull-wrap::before {
+  content: "● LIVE SIMULATION"; position: absolute; top: 8px; left: 12px; font-size: 10px; letter-spacing: 0.5px;
+  color: var(--cyan); font-family: 'JetBrains Mono', monospace; opacity: 0.8; animation: hudBlink 2s ease-in-out infinite;
+}
+@keyframes hudBlink { 0%,100% { opacity: 0.4; } 50% { opacity: 0.9; } }
+.twin-hull-wrap::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(180deg, transparent, rgba(var(--teal-rgb),0.10), transparent);
+  background-size: 100% 300%;
+  animation: hudScan 3.5s linear infinite;
+}
+@keyframes hudScan { 0% { background-position: 0 -200%; } 100% { background-position: 0 100%; } }
+
+/* ---------- GPS wake trail ---------- */
+.leaflet-interactive.wake-trail { filter: drop-shadow(0 0 2px rgba(var(--cyan-rgb),0.5)); }
+
+/* ---------- Sonar pings on underway vessels ---------- */
+.sonar-ring { position: absolute; inset: -4px; border-radius: 50%; border: 1.5px solid rgba(var(--cyan-rgb),0.7); opacity: 0; animation: sonarPing 2.6s ease-out infinite; pointer-events: none; }
+.sonar-ring.delay { animation-delay: 1.3s; }
+@keyframes sonarPing { 0% { transform: scale(0.5); opacity: 0.9; } 100% { transform: scale(3.2); opacity: 0; } }
+
+/* ---------- Animated trade lanes: dashes flow origin -> India ---------- */
+.lane-flow { stroke-dasharray: 7 11; animation: laneFlow 1.6s linear infinite; filter: drop-shadow(0 0 3px rgba(var(--cyan-rgb),0.55)); }
+@keyframes laneFlow { to { stroke-dashoffset: -18; } }
+
+/* ---------- Digital twin: GPS mini-map + compass ---------- */
+.twin-gps-row { display: grid; grid-template-columns: 1fr 140px; gap: 12px; align-items: stretch; margin-bottom: 10px; }
+.twin-mini-map { height: 170px; border-radius: 12px; overflow: hidden; border: 1px solid rgba(var(--teal-rgb),0.3); position: relative; }
+.twin-compass { display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(0,0,0,0.12); border: 1px solid rgba(var(--teal-rgb),0.25); border-radius: 12px; padding: 8px; }
+.compass-svg { width: 104px; height: 104px; filter: drop-shadow(0 0 6px rgba(var(--cyan-rgb),0.35)); }
+.compass-readout { font-size: 14px; color: var(--cyan); margin-top: 2px; }
+@media (max-width: 560px) { .twin-gps-row { grid-template-columns: 1fr; } }
+
+/* Eco KPI accent */
+.kpi-green { border-color: rgba(var(--seafoam-rgb),0.45); }
+.kpi-green .kpi-value { color: var(--seafoam); }
+
+/* ---------- Card hover tilt (subtle 3D depth on glass panels) ---------- */
+.kpi-card, .vessel-card, .qa-card { transform-style: preserve-3d; transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease; }
+.kpi-card:hover, .vessel-card:hover { transform: perspective(700px) rotateX(2deg) rotateY(-2deg) translateY(-3px); box-shadow: 0 18px 40px rgba(0,0,0,0.45), 0 0 18px rgba(var(--teal-rgb),0.18); }
+
+/* ---------- Animated gradient border on the top recommendation ---------- */
+.vessel-card.top-pick { position: relative; }
+.vessel-card.top-pick::before { content: ""; position: absolute; inset: -1.5px; border-radius: 13px; padding: 1.5px; background: conic-gradient(from var(--ang, 0deg), rgba(var(--cyan-rgb),0.9), transparent 30%, rgba(var(--seafoam-rgb),0.9), transparent 65%, rgba(var(--cyan-rgb),0.9)); -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; animation: borderSpin 6s linear infinite; pointer-events: none; }
+@property --ang { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
+@keyframes borderSpin { to { --ang: 360deg; } }
+
+/* ---------- Eco / integrity badges ---------- */
+.eco-badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 9px; border-radius: 20px; font-size: 11px; font-weight: 600; background: rgba(var(--seafoam-rgb),0.15); color: var(--seafoam); border: 1px solid rgba(var(--seafoam-rgb),0.3); white-space: nowrap; }
+.hash-chip { font-family: 'JetBrains Mono', monospace; font-size: 11px; padding: 2px 8px; border-radius: 6px; background: rgba(var(--teal-rgb),0.12); color: var(--cyan); border: 1px solid rgba(var(--teal-rgb),0.25); cursor: help; }
+.hash-chip.ok { background: rgba(var(--seafoam-rgb),0.18); color: var(--seafoam); border-color: rgba(var(--seafoam-rgb),0.45); }
+.hash-chip.bad { background: rgba(var(--coral-rgb),0.2); color: var(--coral); border-color: rgba(var(--coral-rgb),0.5); animation: hudBlink 1s ease-in-out infinite; }
+
+/* ---------- Post-login "systems online" boot overlay ---------- */
+@keyframes bootFill { to { width: 100%; } }
